@@ -81,43 +81,46 @@ func BindHTTP(s log.Sugar, port int, h http.Handler, tlsConfig *tls.Config) erro
 	var lis net.Listener
 	var err error
 	if tlsConfig == nil {
-		s.Infof("Listening HTTP on port %d", port)
 		lis, err = net.Listen("tcp", fmt.Sprintf(":%d", port))
 		if err != nil {
 			s.Errorf("Failed to listen %d: %s", port, err.Error())
 			return err
 		}
 	} else {
-		s.Infof("Listening HTTP with TLS on port %d", port)
 		lis, err = tls.Listen("tcp", fmt.Sprintf(":%d", port), tlsConfig)
 		if err != nil {
 			s.Errorf("Failed to listen %d with TLS: %s", port, err.Error())
 			return err
 		}
 	}
-	srv := &http.Server{
-		Handler: h,
+	if tlsConfig == nil {
+		s.Infof("Serving HTTP: %v", lis.Addr())
+	} else {
+		s.Infof("Serving HTTP with TLS: %v", lis.Addr())
 	}
-	return srv.Serve(lis)
+	return (&http.Server{Handler: h}).Serve(lis)
 }
 
 func BindGRPC(s log.Sugar, port int, grpc *grpc.Server, tlsConfig *tls.Config) error {
 	var lis net.Listener
 	var err error
 	if tlsConfig == nil {
-		s.Infof("Listening GRPC on port %d", port)
 		lis, err = net.Listen("tcp", fmt.Sprintf(":%d", port))
 		if err != nil {
 			s.Errorf("Failed to listen %d: %s", port, err.Error())
 			return err
 		}
 	} else {
-		s.Infof("Listening GRPC with TLS on port %d", port)
 		lis, err = tls.Listen("tcp", fmt.Sprintf(":%d", port), tlsConfig)
 		if err != nil {
 			s.Errorf("Failed to listen %d: %s", port, err.Error())
 			return err
 		}
+	}
+	if tlsConfig == nil {
+		s.Infof("Serving GRPC: %v", lis.Addr())
+	} else {
+		s.Infof("Serving GRPC with TLS: %v", lis.Addr())
 	}
 	return grpc.Serve(lis)
 }
