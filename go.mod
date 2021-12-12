@@ -1,6 +1,6 @@
 module github.com/crosstalkio/httpd
 
-go 1.11
+go 1.15
 
 require (
 	github.com/crosstalkio/log v0.0.0-20200424160359-9ae8a3a03dad
